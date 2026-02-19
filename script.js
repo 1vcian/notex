@@ -24,7 +24,6 @@ window.addEventListener('load', () => {
 
     if (hash) {
         try {
-            // Check for potential legacy format (mode|content) but always ignore the mode
             let compressed = hash;
             if (hash.includes('|')) {
                 compressed = hash.split('|')[1];
@@ -42,44 +41,127 @@ window.addEventListener('load', () => {
     render();
 });
 
-function getCursorLine() {
-    const textBeforeCursor = editor.value.substring(0, editor.selectionStart);
-    return textBeforeCursor.split('\n').length - 1;
-}
-
 function render() {
     const content = editor.value;
+    const cursor = editor.selectionStart;
     charCount.textContent = `${content.length} characters`;
 
     if (modeToggle.checked) {
-        // Full Preview Mode (marked.js)
+        // Full View Mode (marked.js)
         preview.innerHTML = marked.parse(content);
     } else {
-        // Editor Mode (Interactive Overlay)
-        const currentLineIndex = getCursorLine();
-        const lines = content.split('\n');
+        // Edit Mode (Interactive Overlay with Multi-line support)
+        let html = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-        preview.innerHTML = lines.map((line, i) => {
-            let renderedLine = line;
-            const isActive = (i === currentLineIndex);
+        // Define patterns and their replacement logic
+        // We use a list of matchers to handle overlapping/sequential tags
+        const patterns = [
+            // Headings (single line by nature but handled here)
+            { regex: /^(#+ )(.*)/gm, type: 'header', tags: [1] },
+            // Bold (**text** or __text__)
+            { regex: /(\*\*|__)([\s\S]*?)(\1)/g, type: 'bold', tags: [1, 3] },
+            // Italic (*text* or _text_)
+            { regex: /(\*|_)([\s\S]*?)(\1)/g, type: 'italic', tags: [1, 3] },
+            // Inline Code (`text`)
+            { regex: /(`)([\s\S]*?)(`)/g, type: 'code', tags: [1, 3] },
+            // Block Code (```text```)
+            { regex: /(```)([\s\S]*?)(```)/g, type: 'block-code', tags: [1, 3] }
+        ];
 
-            // Escape HTML
-            renderedLine = renderedLine.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        // To apply highlights without breaking character offsets in nested steps, 
+        // we'll use a placeholder system or a sophisticated single-pass approach.
+        // For simplicity and correctness in alignment, we apply tags manually.
 
-            // Custom Regex Highlighter (Char-preserving)
-            renderedLine = renderedLine.replace(/^(#+ )(.*)/, '<span class="md-header"><span class="md-tag">$1</span>$2</span>');
-            renderedLine = renderedLine.replace(/(\*\*)(.*?)(\*\*)/g, '<span class="md-bold"><span class="md-tag">$1</span>$2<span class="md-tag">$3</span></span>');
-            renderedLine = renderedLine.replace(/(\*)(.*?)(\*)/g, '<span class="md-italic"><span class="md-tag">$1</span>$2<span class="md-tag">$3</span></span>');
-            renderedLine = renderedLine.replace(/(`)(.*?)(`)/g, '<span class="md-code"><span class="md-tag">$1</span>$2<span class="md-tag">$3</span></span>');
+        let result = html;
+        let offsetAdjust = 0;
 
-            return `<div class="line ${isActive ? 'active' : ''}">${renderedLine || ' '}</div>`;
+        // Note: Simple regex replacement doesn't easily allow "cursor inside" check 
+        // while preserving HTML safety. Let's use a more robust tokenization.
+
+        const rawContent = content;
+        let tokens = [{ text: rawContent, type: 'text', start: 0, end: rawContent.length }];
+
+        patterns.forEach(p => {
+            let nextTokens = [];
+            tokens.forEach(token => {
+                if (token.type !== 'text') {
+                    nextTokens.push(token);
+                    return;
+                }
+
+                let lastIdx = 0;
+                let match;
+                while ((match = p.regex.exec(token.text)) !== null) {
+                    // Pull out text before match
+                    if (match.index > lastIdx) {
+                        const preText = token.text.substring(lastIdx, match.index);
+                        nextTokens.push({ text: preText, type: 'text', start: token.start + lastIdx, end: token.start + match.index });
+                    }
+
+                    // The match handles the whole thing
+                    const matchStart = token.start + match.index;
+                    const matchEnd = matchStart + match[0].length;
+
+                    // Check if cursor is inside this specific match range
+                    const isCursorInside = (cursor >= matchStart && cursor <= matchEnd);
+
+                    nextTokens.push({
+                        text: match[0],
+                        type: p.type,
+                        start: matchStart,
+                        end: matchEnd,
+                        isActive: isCursorInside,
+                        groups: match // Store groups for tag-specific wrapping
+                    });
+
+                    lastIdx = p.regex.lastIndex;
+                }
+
+                if (lastIdx < token.text.length) {
+                    const postText = token.text.substring(lastIdx);
+                    nextTokens.push({ text: postText, type: 'text', start: token.start + lastIdx, end: token.end });
+                }
+            });
+            tokens = nextTokens;
+            p.regex.lastIndex = 0; // Reset for next pass (important for gm/g)
+        });
+
+        const finalHtml = tokens.map(t => {
+            let escaped = t.text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            if (t.type === 'text') return escaped;
+
+            // Re-wrap groups with tags
+            // This is a bit complex because we need to know WHERE the tags are.
+            // For Bold/Italic/Code it's usually at start and end.
+
+            let wrapped = escaped;
+            const tagClass = t.isActive ? 'md-tag' : 'md-tag faded';
+
+            if (t.type === 'header') {
+                const spaceIdx = escaped.indexOf(' ');
+                const tags = escaped.substring(0, spaceIdx + 1);
+                const text = escaped.substring(spaceIdx + 1);
+                wrapped = `<span class="md-header"><span class="${tagClass}">${tags}</span>${text}</span>`;
+            } else if (['bold', 'italic', 'code', 'block-code'].includes(t.type)) {
+                // Find tag length based on type
+                let tagLen = 1;
+                if (t.type === 'bold') tagLen = 2;
+                if (t.type === 'block-code') tagLen = 3;
+
+                const startTag = escaped.substring(0, tagLen);
+                const middleText = escaped.substring(tagLen, escaped.length - tagLen);
+                const endTag = escaped.substring(escaped.length - tagLen);
+
+                wrapped = `<span class="md-${t.type}"><span class="${tagClass}">${startTag}</span>${middleText}<span class="${tagClass}">${endTag}</span></span>`;
+            }
+
+            return wrapped;
         }).join('');
 
-        // Sync scrolling
+        preview.innerHTML = finalHtml + (content.endsWith('\n') ? '<br>' : '');
         preview.scrollTop = editor.scrollTop;
     }
 
-    // URL Update Logic (Only content)
     if (content !== lastSavedContent) {
         clearTimeout(updateTimeout);
         updateTimeout = setTimeout(updateURL, 15);
@@ -88,12 +170,9 @@ function render() {
 
 function updateURL() {
     const content = editor.value;
-
     try {
         const compressed = LZString.compressToEncodedURIComponent(content);
-        // Only content in the hash, no UI state
         window.history.replaceState(null, '', '#' + compressed);
-
         status.textContent = 'Saved in URL';
         lastSavedContent = content;
         setTimeout(() => status.textContent = 'All caught up', 1000);

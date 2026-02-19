@@ -58,7 +58,6 @@ header {
     gap: 20px;
 }
 
-/* Toggle Switch Styles */
 .toggle-container {
     display: flex;
     align-items: center;
@@ -152,9 +151,10 @@ main#editor-wrapper {
     overflow-y: auto;
     border: none;
     outline: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
-/* Edit Mode (Default) */
 #editor {
     font-family: var(--editor-font);
     font-size: var(--editor-font-size);
@@ -164,8 +164,6 @@ main#editor-wrapper {
     caret-color: #fff;
     resize: none;
     z-index: 2;
-    white-space: pre-wrap;
-    word-wrap: break-word;
 }
 
 #preview {
@@ -176,11 +174,43 @@ main#editor-wrapper {
     color: var(--text-color);
     pointer-events: none;
     background: var(--bg-color);
-    white-space: pre-wrap;
-    word-wrap: break-word;
 }
 
-/* Preview Mode */
+/* Edit Mode Highlighting */
+.md-tag {
+    opacity: 1;
+    color: var(--accent-color);
+    transition: opacity 0.1s;
+}
+
+.md-tag.faded {
+    opacity: 0.15;
+    /* Substantially faded when cursor is not inside */
+}
+
+.md-header {
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+.md-bold {
+    font-weight: 700;
+    color: #fff;
+}
+
+.md-italic {
+    font-style: italic;
+    color: #fff;
+}
+
+.md-code,
+.md-block-code {
+    background: #30363d;
+    border-radius: 4px;
+    color: #ffa657;
+}
+
+/* Preview Mode Styles */
 .preview-mode #preview {
     font-family: 'Inter', sans-serif;
     pointer-events: auto;
@@ -194,42 +224,6 @@ main#editor-wrapper {
     display: none;
 }
 
-/* Highlighting in Edit Mode */
-.line {
-    min-height: 1.6em;
-}
-
-.md-tag {
-    opacity: 0.3;
-}
-
-.active .md-tag {
-    opacity: 1;
-    color: var(--accent-color);
-}
-
-.md-header {
-    color: var(--accent-color);
-    font-weight: 700;
-}
-
-.md-bold {
-    font-weight: 700;
-    color: #fff;
-}
-
-.md-italic {
-    font-style: italic;
-    color: #fff;
-}
-
-.md-code {
-    background: #30363d;
-    border-radius: 4px;
-    color: #ffa657;
-}
-
-/* Styles for Preview Mode (Marked.js Output) */
 .preview-mode #preview h1,
 .preview-mode #preview h2 {
     border-bottom: 1px solid var(--border-color);
