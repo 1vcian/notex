@@ -21,35 +21,68 @@
 
 <body>
     <div id="app">
-        <header>
-            <div class="logo">No<span>tex</span></div>
-            <div class="actions">
-                <div class="toggle-container">
-                    <span>Edit</span>
-                    <label class="switch">
-                        <input type="checkbox" id="mode-toggle" checked>
-                        <span class="slider round"></span>
-                    </label>
-                    <span>View</span>
+        <!-- Sidebar -->
+        <aside id="sidebar">
+            <div class="sidebar-header">
+                <h3>My Notes</h3>
+                <button id="new-note-btn" title="Create a new note">+</button>
+            </div>
+            <div id="file-list"></div>
+        </aside>
+
+        <div id="main-content">
+            <header>
+                <div class="header-left">
+                    <button id="sidebar-toggle" class="icon-btn" title="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                            fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <div class="logo">No<span>tex</span></div>
                 </div>
-                <button id="copy-link" title="Copy compressed link">Copy Link</button>
+                <div class="actions">
+                    <div class="toggle-container">
+                        <span>Edit</span>
+                        <label class="switch">
+                            <input type="checkbox" id="mode-toggle" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <span>View</span>
+                    </div>
+                    <button id="copy-link" title="Copy compressed link">Copy Link</button>
+                </div>
+            </header>
+            <main id="editor-wrapper">
+                <!-- The preview is behind the textarea -->
+                <div id="preview" class="markdown-body"></div>
+                <!-- The textarea is transparent but captures input -->
+                <textarea id="editor" spellcheck="false" placeholder="Write your Markdown here..."></textarea>
+            </main>
+            <footer>
+                <div class="footer-left">
+                    <span id="status">All caught up</span>
+                    <span id="char-count">0 characters</span>
+                </div>
+                <div class="footer-right">
+                    Live typing enabled
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Custom Delete Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <h3>Delete Note</h3>
+            <p>Are you sure you want to delete this note? This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button id="cancel-delete" class="btn-secondary">Cancel</button>
+                <button id="confirm-delete" class="btn-danger">Delete</button>
             </div>
-        </header>
-        <main id="editor-wrapper">
-            <!-- The preview is behind the textarea -->
-            <div id="preview" class="markdown-body"></div>
-            <!-- The textarea is transparent but captures input -->
-            <textarea id="editor" spellcheck="false" placeholder="Write your Markdown here..."></textarea>
-        </main>
-        <footer>
-            <div class="footer-left">
-                <span id="status">All caught up</span>
-                <span id="char-count">0 characters</span>
-            </div>
-            <div class="footer-right">
-                Live typing enabled
-            </div>
-        </footer>
+        </div>
     </div>
     <script src="script.js"></script>
     <script>
