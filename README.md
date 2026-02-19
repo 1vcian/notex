@@ -1,4 +1,4 @@
-# Notes
+# Notex
 
 A minimalist, single-pane Markdown editor that stores its content directly in the URL hash.
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notes | Shareable & Real-time</title>
+    <title>Notex | Shareable & Real-time</title>
     <meta name="description" content="A simple, interactive Markdown editor that updates the URL in real-time.">
     <link rel="stylesheet" href="style.css">
     <!-- Google Fonts -->
@@ -13,14 +13,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap"
         rel="stylesheet">
     <!-- Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="markdown-it.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+    <!-- PrismJS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
 </head>
 
 <body>
     <div id="app">
         <header>
-            <div class="logo">No<span>tes</span></div>
+            <div class="logo">No<span>tex</span></div>
             <div class="actions">
                 <div class="toggle-container">
                     <span>Edit</span>

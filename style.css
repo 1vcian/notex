@@ -151,7 +151,6 @@ main#editor-wrapper {
     overflow-y: auto;
     border: none;
     outline: none;
-    white-space: pre-wrap;
     word-wrap: break-word;
 }
 
@@ -164,6 +163,7 @@ main#editor-wrapper {
     caret-color: #fff;
     resize: none;
     z-index: 2;
+    white-space: pre-wrap;
 }
 
 #preview {
@@ -174,40 +174,68 @@ main#editor-wrapper {
     color: var(--text-color);
     pointer-events: none;
     background: var(--bg-color);
+    white-space: normal;
 }
 
-/* Edit Mode Highlighting */
-.md-tag {
-    opacity: 1;
+/* Edit Mode Highlighting - PrismJS Overrides */
+
+/* Target the specific generated structure */
+#preview code.language-markdown {
+    display: block;
+    /* Ensure it behaves like a block for the container */
+    font-family: var(--editor-font) !important;
+    font-size: var(--editor-font-size) !important;
+    line-height: var(--editor-line-height) !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    color: var(--text-color);
+    /* Default text color */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Ensure Prism styles don't override our alignment critical properties on the code block */
+:not(pre)>code[class*="language-"],
+pre[class*="language-"] {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Specific Markdown Tokens for better visibility */
+.token.title,
+.token.header {
+    font-weight: bold;
     color: var(--accent-color);
-    transition: opacity 0.1s;
 }
 
-.md-tag.faded {
-    opacity: 0.15;
-    /* Substantially faded when cursor is not inside */
-}
-
-.md-header {
-    font-weight: 700;
-    color: var(--accent-color);
-}
-
-.md-bold {
-    font-weight: 700;
+.token.bold {
+    font-weight: bold;
     color: #fff;
 }
 
-.md-italic {
+.token.italic {
     font-style: italic;
     color: #fff;
 }
 
-.md-code,
-.md-block-code {
-    background: #30363d;
-    border-radius: 4px;
+.token.code {
     color: #ffa657;
+    background: rgba(48, 54, 61, 0.5);
+    border-radius: 4px;
+    padding: 0.1em 0.3em;
+    /* Optional: adds a bit of padding like in View mode */
+}
+
+/* Handle block code specially if needed, mostly for background color */
+.token.block-code {
+    background: rgba(48, 54, 61, 0.5);
+    border-radius: 4px;
 }
 
 /* Preview Mode Styles */
@@ -255,6 +283,16 @@ main#editor-wrapper {
     border-radius: 6px;
     margin-bottom: 16px;
     overflow-x: auto;
+}
+
+/* Reset inline code style inside code blocks */
+.preview-mode #preview pre>code {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    font-family: var(--editor-font);
+    font-size: 0.95em;
+    white-space: pre;
 }
 
 footer {
