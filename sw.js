@@ -1,17 +1,17 @@
-const CACHE_NAME = 'notex-v2';
+const CACHE_NAME = 'notex-v3';
 const ASSETS = [
-    '/notex/',
-    '/notex/index.html',
-    '/notex/style.css',
-    '/notex/script.js',
-    '/notex/manifest.json',
-    '/notex/markdown-it.min.js',
-    '/notex/lz-string.min.js',
-    '/notex/prism.min.js',
-    '/notex/prism-markdown.min.js',
-    '/notex/prism-tomorrow.min.css',
-    '/notex/icons/icon-192.png',
-    '/notex/icons/icon-512.png'
+    '/',
+    '/index.html',
+    '/style.css',
+    '/script.js',
+    '/manifest.json',
+    '/markdown-it.min.js',
+    '/lz-string.min.js',
+    '/prism.min.js',
+    '/prism-markdown.min.js',
+    '/prism-tomorrow.min.css',
+    '/icons/icon-192.png',
+    '/icons/icon-512.png'
 ];
 
 // Install: cache all assets
