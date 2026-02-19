@@ -20,24 +20,24 @@ window.addEventListener('load', () => {
     modeToggle.checked = true;
     wrapper.classList.add('preview-mode');
 
-    // Default starting text if empty
-    if (!hash && !editor.value) {
-        editor.value = "# Welcome to Notes\n\nStart typing to create your shared note.\n\n- Real-time rendering\n- Character alignment\n- URL-based sharing";
-    }
-
     if (hash) {
+        // Priority 1: URL hash
         try {
             let compressed = hash;
-            if (hash.includes('|')) {
-                compressed = hash.split('|')[1];
-            }
-
+            if (hash.includes('|')) compressed = hash.split('|')[1];
             const decompressed = LZString.decompressFromEncodedURIComponent(compressed);
-            if (decompressed !== null) {
-                editor.value = decompressed;
-            }
+            if (decompressed !== null) editor.value = decompressed;
         } catch (e) {
-            console.error('Failed to restore state', e);
+            console.error('Failed to restore from URL', e);
+        }
+    } else {
+        // Priority 2: localStorage
+        const saved = localStorage.getItem('notes-content');
+        if (saved) {
+            editor.value = saved;
+        } else {
+            // Priority 3: default text
+            editor.value = "# Welcome to Notes\n\nStart typing to create your shared note.\n\n- Real-time rendering\n- Character alignment\n- URL-based sharing";
         }
     }
 
@@ -75,7 +75,8 @@ function updateURL() {
     try {
         const compressed = LZString.compressToEncodedURIComponent(content);
         window.history.replaceState(null, '', '#' + compressed);
-        status.textContent = 'Saved in URL';
+        localStorage.setItem('notes-content', content);
+        status.textContent = 'Saved';
         lastSavedContent = content;
         setTimeout(() => status.textContent = 'All caught up', 1000);
     } catch (e) {
