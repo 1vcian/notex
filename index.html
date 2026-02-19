@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instant Markdown | Shareable & Real-time</title>
+    <meta name="description" content="A simple, interactive Markdown editor that updates the URL in real-time.">
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div class="logo">Markdown<span>Live</span></div>
+            <div class="actions">
+                <button id="copy-link" title="Copy compressed link">Copy Link</button>
+            </div>
+        </header>
+        <main id="editor-wrapper">
+            <!-- The preview is behind the textarea -->
+            <div id="preview" class="markdown-body"></div>
+            <!-- The textarea is transparent but captures input -->
+            <textarea id="editor" spellcheck="false" placeholder="Write your Markdown here..."></textarea>
+        </main>
+        <footer>
+            <div class="footer-left">
+                <span id="status">All caught up</span>
+                <span id="char-count">0 characters</span>
+            </div>
+            <div class="footer-right">
+                Live typing enabled
+            </div>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
