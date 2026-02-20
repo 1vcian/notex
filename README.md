@@ -3,10 +3,10 @@
   <p><b>Shareable, Local-first Markdown Notes</b></p>
 
   <!-- Badges -->
-  <a href="https://github.com/lucian/notex/blob/main/LICENSE">
+  <a href="https://github.com/1vcian/notes/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License" />
   </a>
-  <a href="https://github.com/lucian/notex">
+  <a href="https://github.com/1vcian/notes">
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" />
   </a>
   <a href="#">
@@ -47,7 +47,7 @@ Since Notex has no server dependency, simply visit the hosted URL (e.g. `[Your C
 
 ```bash
 # Clone the repository
-git clone https://github.com/lucian/notes.git
+git clone https://github.com/1vcian/notes.git
 
 # Navigate into the directory
 cd notes
@@ -62,7 +62,7 @@ Open `http://localhost:8080` in your browser.
 
 ## 🤝 Contributing
 Contributions, issues, and feature requests are welcome! 
-Feel free to check [issues page](https://github.com/lucian/notes/issues). 
+Feel free to check [issues page](https://github.com/1vcian/notes/issues). 
 
 ## ⚖️ License
 This project is [MIT](https://opensource.org/licenses/MIT) licensed.
