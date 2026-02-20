@@ -4,6 +4,7 @@ import { DOM, loadActiveFile, renderSidebar, render, closeDeleteModal, lastSaved
 
 // Initialize
 window.addEventListener('load', () => {
+    syncState();
     // Always start in View mode
     DOM.modeToggle.checked = true;
     DOM.wrapper.classList.add('preview-mode');
@@ -188,6 +189,7 @@ window.addEventListener('storage', (e) => {
                         loadActiveFile();
                     }
                 } else if (state.files.length > 0) {
+                    // Current active file was deleted in another tab
                     state.activeId = state.files[0].id;
                     saveState();
                     renderSidebar();
@@ -198,4 +200,9 @@ window.addEventListener('storage', (e) => {
             console.error('Failed to sync across tabs', err);
         }
     }
+
+    // If the active ID changed in another tab, we might want to know (optional)
+    // but the user specifically asked about the "file list" not updating.
+    // However, if some tab adds a file and sets it as active,
+    // notex-files will change anyway because of the new file object.
 });
