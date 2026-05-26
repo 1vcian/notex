@@ -15,7 +15,10 @@ export const DOM = {
     sidebar: document.getElementById('sidebar'),
     deleteModal: document.getElementById('delete-modal'),
     confirmDeleteBtn: document.getElementById('confirm-delete'),
-    cancelDeleteBtn: document.getElementById('cancel-delete')
+    cancelDeleteBtn: document.getElementById('cancel-delete'),
+    downloadDropdown: document.getElementById('download-dropdown'),
+    downloadBtn: document.getElementById('download-btn'),
+    downloadMenu: document.getElementById('download-menu')
 };
 
 // markdown-it instance: GFM-like, supports fenced code blocks, linkify

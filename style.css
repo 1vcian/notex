@@ -542,3 +542,135 @@ footer {
 .btn-danger:hover {
     background: #f85149;
 }
+
+/* Dropdown styles */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: filter 0.2s;
+}
+
+.dropdown-toggle .arrow-icon {
+    transition: transform 0.2s ease;
+}
+
+.dropdown.open .dropdown-toggle .arrow-icon {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    min-width: 200px;
+    z-index: 1000;
+    padding: 6px;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dropdown.open .dropdown-menu {
+    display: flex;
+    animation: dropdownFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-item {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    padding: 8px 12px;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    filter: none;
+}
+
+.dropdown-item svg {
+    color: #8b949e;
+    transition: color 0.2s;
+    flex-shrink: 0;
+}
+
+.dropdown-item:hover svg {
+    color: var(--accent-color);
+}
+
+/* Mobile responsive fixes */
+@media (max-width: 580px) {
+    header {
+        padding: 0 10px;
+    }
+    .actions {
+        gap: 10px;
+    }
+    .toggle-container {
+        font-size: 0.8rem;
+        gap: 4px;
+    }
+    #copy-link, .dropdown-toggle {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+    .dropdown-toggle .btn-text,
+    .dropdown-toggle .arrow-icon {
+        display: none; /* Hide text and arrow on mobile, keep only download icon */
+    }
+    .dropdown-toggle {
+        padding: 6px;
+        border-radius: 50%; /* Make it a circular icon button */
+        width: 32px;
+        height: 32px;
+        justify-content: center;
+    }
+    .logo {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .logo {
+        display: none; /* Hide logo completely on extremely small screens */
+    }
+}

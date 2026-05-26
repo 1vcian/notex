@@ -1,6 +1,6 @@
 import { state, saveState, syncState } from './state.js';
 import { createNewFile, decompressFromURL } from './utils.js';
-import { DOM, loadActiveFile, renderSidebar, render, closeDeleteModal, lastSavedContent } from './ui.js';
+import { DOM, loadActiveFile, renderSidebar, render, closeDeleteModal, lastSavedContent, md } from './ui.js';
 
 // Initialize
 window.addEventListener('load', () => {
@@ -172,6 +172,189 @@ DOM.copyBtn.addEventListener('click', () => {
         DOM.copyBtn.textContent = 'Copied!';
         setTimeout(() => DOM.copyBtn.textContent = originalText, 2000);
     });
+});
+
+// Dropdown Toggle
+DOM.downloadBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    DOM.downloadDropdown.classList.toggle('open');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    if (!DOM.downloadDropdown.contains(e.target)) {
+        DOM.downloadDropdown.classList.remove('open');
+    }
+});
+
+// Helper for exporting text files (MD and TXT)
+function downloadTextFile(content, filename, contentType) {
+    const blob = new Blob([content], { type: contentType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Helper for exporting high-quality vector PDF using print layout
+function exportToPDF(file) {
+    if (!file) return;
+
+    // Create a hidden iframe
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    // Render markdown to HTML
+    const renderedHTML = md.render(file.content);
+
+    // Write document to iframe with a custom print layout stylesheet
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>${file.name}</title>
+            <style>
+                body {
+                    background: white !important;
+                    color: black !important;
+                    padding: 40px !important;
+                    overflow: visible !important;
+                    height: auto !important;
+                }
+                .markdown-body {
+                    background: white !important;
+                    color: #24292f !important;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
+                    line-height: 1.6;
+                }
+                h1, h2, h3, h4, h5, h6 {
+                    color: black !important;
+                    border-bottom: 1px solid #d0d7de !important;
+                    padding-bottom: 0.3em;
+                    margin-top: 24px;
+                    margin-bottom: 16px;
+                    page-break-after: avoid;
+                }
+                h1 { font-size: 2em; }
+                h2 { font-size: 1.5em; }
+                h3 { font-size: 1.25em; }
+                p {
+                    margin-top: 0;
+                    margin-bottom: 16px;
+                    word-wrap: break-word;
+                }
+                pre {
+                    background-color: #f6f8fa !important;
+                    border: 1px solid #d0d7de !important;
+                    border-radius: 6px !important;
+                    padding: 16px !important;
+                    white-space: pre-wrap !important;
+                    word-wrap: break-word !important;
+                    margin-bottom: 16px;
+                }
+                code {
+                    background-color: rgba(175, 184, 193, 0.2) !important;
+                    color: #24292f !important;
+                    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace !important;
+                    font-size: 85% !important;
+                    padding: 0.2em 0.4em !important;
+                    border-radius: 6px !important;
+                }
+                pre>code {
+                    background-color: transparent !important;
+                    padding: 0 !important;
+                    font-size: 100% !important;
+                    border-radius: 0 !important;
+                    word-break: normal !important;
+                    white-space: pre !important;
+                }
+                blockquote {
+                    border-left: .25em solid #d0d7de !important;
+                    color: #57606a !important;
+                    padding: 0 1em !important;
+                    margin: 0 0 16px 0 !important;
+                }
+                a {
+                    color: #0969da !important;
+                    text-decoration: none !important;
+                }
+                ul, ol {
+                    padding-left: 2em !important;
+                    margin-bottom: 16px !important;
+                    margin-top: 0;
+                }
+                li {
+                    margin-top: 0.25em;
+                }
+                img {
+                    max-width: 100% !important;
+                }
+                @media print {
+                    @page {
+                        margin: 20mm;
+                    }
+                    body {
+                        padding: 0 !important;
+                    }
+                }
+            </style>
+        </head>
+        <body class="preview-mode">
+            <div class="markdown-body">
+                ${renderedHTML}
+            </div>
+            <script>
+                window.onload = function() {
+                    setTimeout(function() {
+                        window.print();
+                    }, 250);
+                };
+            </script>
+        </body>
+        </html>
+    `);
+    doc.close();
+
+    // Remove the iframe after printing (afterprint works when print dialog is accepted or cancelled)
+    iframe.contentWindow.addEventListener('afterprint', () => {
+        document.body.removeChild(iframe);
+    });
+}
+
+// Download action handlers
+DOM.downloadMenu.addEventListener('click', (e) => {
+    const item = e.target.closest('.dropdown-item');
+    if (!item) return;
+
+    const format = item.dataset.format;
+    syncState();
+    const file = state.files.find(f => f.id === state.activeId);
+    if (!file) return;
+
+    // Sanitize filename to avoid invalid characters
+    const safeName = file.name.replace(/[/\\?%*:|"<>]/g, '-');
+
+    if (format === 'pdf') {
+        exportToPDF(file);
+    } else if (format === 'md') {
+        downloadTextFile(file.content, `${safeName}.md`, 'text/markdown;charset=utf-8');
+    } else if (format === 'txt') {
+        downloadTextFile(file.content, `${safeName}.txt`, 'text/plain;charset=utf-8');
+    }
+
+    DOM.downloadDropdown.classList.remove('open');
 });
 
 // Sync state across multiple tabs
